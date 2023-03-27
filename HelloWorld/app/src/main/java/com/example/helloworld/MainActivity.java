@@ -2,6 +2,7 @@ package com.example.helloworld;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
@@ -11,37 +12,47 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
+    private Intent goToCalculator_;
+    private Intent fromCalcultor_;
+
+    private double inputA_;
+    private double inputB_;
+    private double result_;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        EditText inputA = (EditText)findViewById(R.id.inputA);
-        EditText inputB = (EditText)findViewById(R.id.inputB);
-        Button sumButton = (Button)findViewById(R.id.sumButton);
-        Button subtractButton = (Button)findViewById(R.id.subtractButton);
-        TextView resultTextView = (TextView)findViewById(R.id.resultTextView);
+        inputA_ = 0.0;
+        inputB_ = 0.0;
+        result_ = 0.0;
 
-        sumButton.setOnClickListener(new SumClickListener(inputA, inputB, resultTextView));
-        subtractButton.setOnClickListener(new View.OnClickListener() {
+        Button goToCalculatorButton = (Button)findViewById(R.id.goToCalculatorButton);
+
+        goToCalculatorButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String inputAContent = inputA.getText().toString();
-                String inputBContent = inputB.getText().toString();
-
-                double convertedA = 0.0;
-                double convertedB = 0.0;
-
-                try {
-                    convertedA = Double.parseDouble(inputAContent);
-                    convertedB = Double.parseDouble(inputBContent);
-                    resultTextView.setText(String.valueOf(convertedA - convertedB));
-                } catch (NumberFormatException ex) {
-                    // resultTextView.setText(ex.getMessage());
-                    Toast.makeText(getApplicationContext(), ex.getMessage(), Toast.LENGTH_LONG).show();
+                if (goToCalculator_ == null) {
+                    goToCalculator_ = new Intent(getApplicationContext(), CalculatorActivity.class);
                 }
+
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("calculatorcontext", new CalculatorContext(inputA_, inputB_, result_));
+                goToCalculator_.putExtras(bundle);
+                startActivity(goToCalculator_);
             }
         });
+
+        if (fromCalcultor_ == null) {
+            fromCalcultor_ = getIntent();
+        }
+
+        CalculatorContext context = (CalculatorContext)fromCalcultor_.getSerializableExtra("calculatorcontext");
+        if (context != null) {
+            inputA_ = context.getInputA();
+            inputB_ = context.getInputB();
+            result_ = context.getResult();
+        }
     }
 }
